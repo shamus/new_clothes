@@ -1,4 +1,5 @@
 require 'new_clothes/model/coupling'
+require 'new_clothes/model/attributes'
 
 module NewClothes
   module Model
@@ -6,6 +7,7 @@ module NewClothes
 
     included do
       extend Coupling
+      include Attributes
     end
   end
 end
