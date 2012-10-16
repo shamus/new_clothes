@@ -33,6 +33,14 @@ module NewClothes
           end
         end
 
+        def hide_attribute attribute
+          attribute = attribute.to_s
+          raise UnknownAttributeError unless exposed_attributes.include?(attribute)
+
+          configured_attributes.reject! { |a| a == attribute }
+          remove_method attribute if method_defined? attribute
+        end
+
         private
 
         def configured_attributes

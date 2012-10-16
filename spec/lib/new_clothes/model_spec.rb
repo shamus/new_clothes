@@ -119,6 +119,38 @@ describe NewClothes::Model do
     end
   end
 
+  describe "hiding an attribute" do
+    before do
+      in_namespace(:Persistence) { define_persistent_model :foo, :a => :string, :a_count => :integer }
+      in_namespace(:Domain) { define_domain_model :foo }
+    end
+
+    context "by default" do
+      before do
+        @domain_instance = Domain::Foo.new(Persistence::Foo.new)
+        @domain_instance.should respond_to(:a)
+        @domain_instance.attributes.should have_key(:a)
+
+        Domain::Foo.hide_attribute :a
+      end
+
+      it "removes the attribute from the attributes hash" do
+        @domain_instance.attributes.should_not have_key(:a)
+      end
+
+      it "removes the attribute accessor" do
+        @domain_instance.should_not respond_to(:a)
+      end
+    end
+
+    context "when the attribute isn't exposed" do
+      specify do
+        Domain::Foo.instance_methods.should_not include(:a_count)
+        expect { Domain::Foo.hide_attribute :a_count }.to raise_exception(NewClothes::UnknownAttributeError)
+      end
+    end
+  end
+
   describe "exposing an association" do
     before do
       in_namespace :Persistence do
