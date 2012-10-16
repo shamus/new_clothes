@@ -18,6 +18,12 @@ module NewClothes
           configured_attributes.dup
         end
 
+        def define_attribute attribute, &b
+          attribute = attribute.to_s
+          configured_attributes << attribute
+          define_method attribute, b
+        end
+
         def expose_attribute attribute, &block
           attribute = attribute.to_s
           raise UnknownAttributeError unless persistent_model.column_names.include? attribute

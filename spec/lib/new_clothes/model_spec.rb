@@ -151,6 +151,27 @@ describe NewClothes::Model do
     end
   end
 
+  describe "defing an attribute" do
+    before do
+      in_namespace(:Persistence) { define_persistent_model :foo }
+      in_namespace(:Domain) { define_domain_model :foo }
+
+      Domain::Foo.define_attribute :defined do
+        :defined
+      end
+
+      @domain_instance = Domain::Foo.new(Persistence::Foo.new)
+    end
+
+    it "includes the attribute in the domain model's attributes hash" do
+      @domain_instance.attributes[:defined].should == :defined
+    end
+
+    it "exposes an accessor method for the attribute" do
+      @domain_instance.defined.should == :defined
+    end
+  end
+
   describe "exposing an association" do
     before do
       in_namespace :Persistence do
