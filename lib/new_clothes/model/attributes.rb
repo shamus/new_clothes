@@ -15,10 +15,29 @@ module NewClothes
 
       module ClassMethods
         def exposed_attributes
-          @exposed_attributes ||= expose_default_attributes
+          configured_attributes.dup
+        end
+
+        def expose_attribute attribute, &block
+          attribute = attribute.to_s
+          raise UnknownAttributeError unless persistent_model.column_names.include? attribute
+
+          configured_attributes << attribute
+
+          if block_given?
+            define_method attribute do
+              block.call model.send(attribute)
+            end
+          else
+            delegate attribute, :to => :model
+          end
         end
 
         private
+
+        def configured_attributes
+          @configured_attributes ||= expose_default_attributes
+        end
 
         def expose_default_attributes
           [].tap do |configured_attributes|

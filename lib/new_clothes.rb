@@ -3,6 +3,8 @@ require 'new_clothes/model'
 require "new_clothes/version"
 
 module NewClothes
+  UnknownAttributeError = Class.new StandardError
+
   class << self
     def persistent_class_name_for domain_class_name
       domain_class_name.gsub domain_namespace, persistent_namespace

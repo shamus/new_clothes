@@ -65,6 +65,60 @@ describe NewClothes::Model do
     end
   end
 
+  describe "exposing an attribute" do
+    before do
+      in_namespace(:Persistence) { define_persistent_model :foo, :a_count => :integer }
+      in_namespace(:Domain) { define_domain_model :foo }
+    end
+
+    context "by default" do
+      before do
+        Domain::Foo.expose_attribute :a_count
+        @persistent_instance = Persistence::Foo.new :a_count => 1
+        @domain_instance = Domain::Foo.new(@persistent_instance)
+      end
+
+      it "includes the attribute in the exposed attributes list" do
+        Domain::Foo.exposed_attributes.should include("a_count")
+      end
+
+      it "includes the attribute in the domain model's attributes hash" do
+        @domain_instance.attributes[:a_count].should == @persistent_instance.a_count
+      end
+
+      it "exposes an accessor method for the attribute" do
+        @domain_instance.a_count.should == @persistent_instance.a_count
+      end
+    end
+
+    context "with a block" do
+      before do
+        @yielded = nil
+        Domain::Foo.expose_attribute(:a_count) do |value|
+          @yielded = value
+          :transformed
+        end
+        @persistent_instance = Persistence::Foo.new :a_count => 1
+        @domain_instance = Domain::Foo.new(@persistent_instance)
+      end
+
+      it "defines an attribute accessor using the supplied block" do
+        @domain_instance.a_count.should == :transformed
+        @yielded.should == @persistent_instance.a_count
+      end
+
+      it "includes the attribute in the domain model's attributes hash" do
+        @domain_instance.attributes[:a_count].should == :transformed
+      end
+    end
+
+    context "when the attribute doesn't exist" do
+      specify do
+        expect { Domain::Foo.expose_attribute :unknown }.to raise_exception(NewClothes::UnknownAttributeError)
+      end
+    end
+  end
+
   describe "exposing an association" do
     before do
       in_namespace :Persistence do
