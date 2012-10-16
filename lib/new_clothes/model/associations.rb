@@ -3,6 +3,8 @@ module NewClothes
     module Associations
       def expose_association name, &b
         reflection = persistent_model.reflect_on_association name
+        raise UnknownAssociationError unless reflection
+
         b = default_proc reflection.klass unless block_given?
 
         method_body =

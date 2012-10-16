@@ -3,6 +3,7 @@ require 'new_clothes/model'
 require "new_clothes/version"
 
 module NewClothes
+  UnknownAssociationError = Class.new StandardError
   UnknownAttributeError = Class.new StandardError
 
   class << self

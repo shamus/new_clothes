@@ -214,6 +214,12 @@ describe NewClothes::Model do
           @yielded.should == 2
         end
       end
+
+      context "when the association doesn't exist" do
+        specify do
+          expect { Domain::Foo.expose_association :unknown }.to raise_exception(NewClothes::UnknownAssociationError)
+        end
+      end
     end
   end
 end
