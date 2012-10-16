@@ -59,11 +59,18 @@ module NewClothesHelpers
   end
 
   def in_namespace name, &block
-    name = name.to_s.classify.to_sym
-    constant = Object.const_set name, Module.new
-    NewClothesHelpers.register_constant_for_removal constant
-
+    constant = define_constant name
     ModelBuilder.new(constant).instance_eval &block
+  end
+
+  private
+  def define_constant name
+    name = name.to_s.classify.to_sym
+    return Object.const_get(name) if Object.const_defined? name
+
+    Object.const_set(name, Module.new).tap do |constant|
+      NewClothesHelpers.register_constant_for_removal constant
+    end
   end
 end
 

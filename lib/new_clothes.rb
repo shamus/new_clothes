@@ -8,6 +8,10 @@ module NewClothes
       domain_class_name.gsub domain_namespace, persistent_namespace
     end
 
+    def domain_class_name_for persistent_class_name
+      persistent_class_name.gsub persistent_namespace, domain_namespace
+    end
+
     def domain_namespace
       @domain_namespace ||= "Domain"
     end
