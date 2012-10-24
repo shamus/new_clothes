@@ -203,7 +203,17 @@ describe NewClothes::Model do
 
       context "when no corresponding domain model can be found" do
         specify do
-          expect { Domain::Foo.expose_assocition :baz }.to raise_exception
+          expect { Domain::Foo.expose_association :baz }.to raise_exception(NameError)
+        end
+      end
+
+      context "when no corresponding domain model doesn't map to the type of the association" do
+        before do
+          in_namespace(:Domain) { define_domain_model :baz, Persistence::Bar }
+        end
+
+        specify do
+          expect { Domain::Foo.expose_association :baz }.to raise_exception(NewClothes::AssociationError)
         end
       end
 
@@ -246,6 +256,16 @@ describe NewClothes::Model do
       context "when no corresponding domain model can be found" do
         specify do
           expect { Domain::Foo.expose_assocition :bar }.to raise_exception
+        end
+      end
+
+      context "when no corresponding domain model doesn't map to the type of the association" do
+        before do
+          in_namespace(:Domain) { define_domain_model :bar, Persistence::Baz }
+        end
+
+        specify do
+          expect { Domain::Foo.expose_association :bar }.to raise_exception(NewClothes::AssociationError)
         end
       end
 

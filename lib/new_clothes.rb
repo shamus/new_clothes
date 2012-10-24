@@ -3,16 +3,13 @@ require 'new_clothes/model'
 require "new_clothes/version"
 
 module NewClothes
-  UnknownAssociationError = Class.new StandardError
+  AssociationError = Class.new StandardError
+  UnknownAssociationError = Class.new AssociationError
   UnknownAttributeError = Class.new StandardError
 
   class << self
     def persistent_class_name_for domain_class_name
       domain_class_name.gsub domain_namespace, persistent_namespace
-    end
-
-    def domain_class_name_for persistent_class_name
-      persistent_class_name.gsub persistent_namespace, domain_namespace
     end
 
     def domain_namespace
