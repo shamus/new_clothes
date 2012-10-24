@@ -1,11 +1,11 @@
 module NewClothes
   module Model
     module Associations
-      def expose_association name, &b
+       def expose_association name, options = {}, &b
         reflection = persistent_model.reflect_on_association name
         raise UnknownAssociationError unless reflection
 
-        b = default_transformation_proc(reflection) unless block_given?
+        b = default_transformation_proc(reflection, options[:class]) unless block_given?
 
         implementation =
           if reflection.collection?
@@ -19,9 +19,9 @@ module NewClothes
 
       private
 
-      def default_transformation_proc reflection
-        domain_class = associated_domain_class_for reflection.klass
-        raise AssociationError unless domain_class.persistent_model == reflection.klass
+      def default_transformation_proc reflection, domain_class = nil
+        domain_class = associated_domain_class_for(reflection.klass) unless domain_class
+        raise AssociationError unless domain_class.persistent_model.name == reflection.klass.name
 
         Proc.new { |model| domain_class.new(model) }
       end

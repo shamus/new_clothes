@@ -201,13 +201,25 @@ describe NewClothes::Model do
         end
       end
 
+      context "when configuring the association target domain class" do
+        it "uses the specified :class option" do
+          in_namespace(:Domain) { define_domain_model :qux, Persistence::Baz }
+          Domain::Foo.expose_association :baz, :class => Domain::Qux
+
+          persistent_instance = Persistence::Foo.new
+          persistent_instance.build_baz
+          domain_instance = Domain::Foo.new(persistent_instance)
+          domain_instance.baz.should be_a(Domain::Qux)
+        end
+      end
+
       context "when no corresponding domain model can be found" do
         specify do
           expect { Domain::Foo.expose_association :baz }.to raise_exception(NameError)
         end
       end
 
-      context "when no corresponding domain model doesn't map to the type of the association" do
+      context "when the corresponding domain model doesn't map to the type of the association" do
         before do
           in_namespace(:Domain) { define_domain_model :baz, Persistence::Bar }
         end
@@ -259,7 +271,7 @@ describe NewClothes::Model do
         end
       end
 
-      context "when no corresponding domain model doesn't map to the type of the association" do
+      context "when the corresponding domain model doesn't map to the type of the association" do
         before do
           in_namespace(:Domain) { define_domain_model :bar, Persistence::Baz }
         end
