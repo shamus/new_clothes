@@ -16,6 +16,7 @@ module NewClothesHelpers
   class ModelBuilder
     def initialize namespace
       @namespace = namespace
+      @defined_constants = []
     end
 
     def define_persistent_model name, attributes = {}, &block
@@ -49,18 +50,29 @@ module NewClothesHelpers
       define_constant name, domain_model
     end
 
+    attr_reader :defined_constants
+
     private
-    attr_reader :namespace
 
     def define_constant name, value
       name = name.to_s.classify.to_sym
-      namespace.const_set name, value
+      namespace.const_set(name, value).tap { |c| defined_constants << c }
     end
+
+    attr_reader :namespace
   end
 
   def in_namespace name, &block
     constant = define_constant name
     ModelBuilder.new(constant).instance_eval &block
+  end
+
+  def top_level_namespace &block
+    builder = ModelBuilder.new(Object)
+    builder.instance_eval &block
+    builder.defined_constants.each do |constant|
+      NewClothesHelpers.register_constant_for_removal constant
+    end
   end
 
   private

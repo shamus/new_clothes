@@ -43,11 +43,25 @@ describe NewClothes::Model do
       end
     end
 
+    context "when there is no persistent namespace" do
+      before { NewClothes.persistent_namespace = nil }
+      after { NewClothes.persistent_namespace = "Persistence" }
+
+      it "finds the corresponding persistent model in the top level namespace" do
+        top_level_namespace { define_persistent_model :foo }
+        in_namespace(:Domain) { define_domain_model :foo }
+
+        Domain::Foo.persistent_model.should == ::Foo
+      end
+    end
+
     context "when the persistent model can't be found" do
+      before do
+        in_namespace(:Domain) { define_domain_model(:foo) }
+      end
+
       specify do
-        expect do
-          in_namespace(:Domain) { define_domain_model.persistent_model }
-        end.to raise_exception
+        expect { Domain::Foo.persistent_model }.to raise_exception(NameError)
       end
     end
   end

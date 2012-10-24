@@ -20,6 +20,10 @@ module NewClothes
       @persistent_namespace ||= "Persistence"
     end
 
-    attr_writer :domain_namespace, :persistent_namespace
+    def persistent_namespace= persistent_namespace
+      @persistent_namespace = persistent_namespace.to_s
+    end
+
+    attr_writer :domain_namespace
   end
 end
